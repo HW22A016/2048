@@ -1,0 +1,18 @@
+.board
+{
+  display: grid;
+  width: fit-content;
+  margin: 20px auto;
+  border: 1px solid #555;
+  grid-template-rows: repeat(5, 50px);
+  grid-template-columns: repeat(5, 50px);
+  background-color: #f4a225;
+}
+
+.square
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #555;
+}
