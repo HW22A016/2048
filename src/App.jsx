@@ -1,3 +1,7 @@
+// 次やること
+// spanNumとmoveLeftをidでvalueを見てるがアニメーションをさせたかったらrowとcolを変更しないとだめなのでvalueでは無くrowとcolを変更するようにしろ
+
+
 import { useState, useEffect } from 'react';
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
@@ -23,7 +27,7 @@ function App() {
 
         if(JSON.stringify(currentBoard) !== JSON.stringify(newBoard))
         {
-          newBoard = spanNum(newBoard);
+          newBoard = spanNum(5, newBoard);
           return newBoard;
         }
 
@@ -40,37 +44,59 @@ function App() {
 
   function createBoard()
   {
-    let board = Array(5).fill(null).map(() => Array(5).fill(0));
+    const len = 5;
+    let board = fillTiles(len);
     for(let i = 0; i < 2; i++)
     {
-      board = spanNum(board);
+      board = spanNum(len, board);
     }
     return board;
   }
 
-  function spanNum(board)
+  function fillTiles(len)
+  {
+    let id = 1;
+    let tiles = [];
+    for(let i = 0; i < len; i++)
+    {
+      for(let j = 0; j < len; j++)
+      {
+        tiles.push({id: id, value: 0, row: i, col: j});
+        id++;
+      }
+    }
+    return tiles;
+  }
+
+  function spanNum(len, board)
   {
     while(true)
     {
-      const row = Math.floor(Math.random() * board.length);
-      const col = Math.floor(Math.random() * board[0].length);
+      const row = Math.floor(Math.random() * len);
+      const col = Math.floor(Math.random() * len);
 
-      if(board[row][col] !== 0)
+      const id = row * len + col + 1;
+
+      // some()はいずれかの要素が条件に合致しているか判定
+      if(board.some((tile) => tile.id === id && tile.value !== 0))
       {
         continue;
       }
 
-      board[row][col] = 2;
-      break;
-    }
+      board = board.map(tile =>
+        tile.id === id
+          ? {...tile, value: 2}
+          : tile
+      )
 
-    return board
+      return board;
+    }
   }
 
   function handleMove(currentBoard, direction)
   {
-    // boardのコピー作成
-    let newBoard = currentBoard.map(row => [...row]);
+    // boardのコピー作成 ()がreturnと同じ意味
+    let newBoard = currentBoard.map(tile => ({...tile}));
 
     switch (direction) {
       case 'ArrowUp':
@@ -93,7 +119,48 @@ function App() {
 
   function moveLeft(board)
   {
-    return board.map(row => slideLeftRow(row));
+    const len = Math.sqrt(board.length);
+    for(let row = 0; row < len; row++)
+    {
+      for(let col = 0; col < len - 1; col++)
+      {
+        const id = row * len + col + 1;
+        const currentTile = board.find(tile => tile.id === id);
+        const nextTile = board.find(tile => tile.id === id + 1);
+
+        // 左が0で右が数字なら左に詰める
+        if(currentTile.value === 0 && nextTile.value !== 0)
+        {
+          board.map(tile => {
+            if(tile.id === currentTile.id)
+            {
+              tile.value = nextTile.value;
+            }
+            else if(tile.id === nextTile.id)
+            {
+              tile.value = 0;
+            }
+          })
+        }
+        // 左と右が同じ値なら左に詰めて足す
+        else if(currentTile.value === nextTile.value)
+        {
+          board.map(tile => {
+            if(tile.id === currentTile.id)
+            {
+              tile.value *= 2;
+            }
+            else if(tile.id === nextTile.id)
+            {
+              tile.value = 0;
+            }
+          })
+        }
+      }
+    }
+
+    return board;
+    // return board.map(tile => slideLeftRow(tile));
   }
 
   function slideLeftRow(row)
@@ -144,14 +211,19 @@ function App() {
       <h1>2048</h1>
       
       <div className='board'>
-        {board.map((row, rowIndex) =>
-          row.map((cell, colIndex) =>
+        {Array(25).fill(null).map((_, index) =>(
+          <p
+            key={index}
+            className="square"/>
+        ))}
+
+        {board.filter(tile => tile.value !== 0).map(tile =>
             <p
-              key={`${rowIndex}-${colIndex}`}
-              className='square'>
-                {cell !== 0  && cell}</p>
+              key={tile.id}
+              className='tile' style={{ backgroundColor: tile.value !== 0 ? '#FFF' : '#f4a225', transform: `translate(${tile.col * 50}px, ${tile.row * 50}px)`}}>
+                {tile.value}</p>
           )
-        )}
+        }
       </div>
     </div>
       )
