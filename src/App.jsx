@@ -18,22 +18,17 @@ function App() {
       // 標準の動きをキャンセル
       e.preventDefault();
 
-      switch (e.key) {
-        case 'ArrowUp':
-          console.log('上キーが押されました');
-          break;
-        case 'ArrowDown':
-          console.log('下キーが押されました');
-          break;
-        case 'ArrowLeft':
-          console.log('左キーが押されました');
-          break;
-        case 'ArrowRight':
-          console.log('右キーが押された');
-          break;
-        default:
-          break;
-      }
+      setBoard((currentBoard) => {
+        let newBoard = handleMove(currentBoard, e.key);
+
+        if(JSON.stringify(currentBoard) !== JSON.stringify(newBoard))
+        {
+          newBoard = spanNum(newBoard);
+          return newBoard;
+        }
+
+        return currentBoard;
+      });
     };
     window.addEventListener('keydown', handleKeyDown);
 
@@ -71,6 +66,79 @@ function App() {
 
     return board
   }
+
+  function handleMove(currentBoard, direction)
+  {
+    // boardのコピー作成
+    let newBoard = currentBoard.map(row => [...row]);
+
+    switch (direction) {
+      case 'ArrowUp':
+        console.log('上キーが押されました');
+        break;
+      case 'ArrowDown':
+        console.log('下キーが押されました');
+        break;
+      case 'ArrowLeft':
+        newBoard = moveLeft(newBoard);
+        break;
+      case 'ArrowRight':
+        console.log('右キーが押された');
+        break;
+      default:
+        break;
+    }
+    return newBoard;
+  }
+
+  function moveLeft(board)
+  {
+    return board.map(row => slideLeftRow(row));
+  }
+
+  function slideLeftRow(row)
+  {
+    // 0以外が配列に格納される
+    let numbers = row.filter(cell => cell !== 0);
+
+    // ここで数字が同じなら合体
+    for(let i = 0; i < numbers.length - 1; i++)
+    {
+      if(numbers[i] === numbers[i + 1])
+      {
+        numbers[i] *= 2;
+        numbers[i + 1] = 0;
+        i++;
+      }
+    }
+
+    // 合体させた分の0を詰める
+    numbers = numbers.filter(cell => cell !== 0);
+
+    // 足りない長さを埋める
+    while(numbers.length < row.length)
+    {
+      numbers.push(0);
+    }
+
+    return numbers;
+  }
+
+  function rotateBoard(currentBoard)
+  {
+    const size = currentBoard.length;
+    let newBoard = Array(size).fill(null).map(() => Array(size).fill(0));
+    for(let r = 0; r < size; r++)
+    {
+      for(let c = 0; c < size; c++)
+      {
+        newBoard[c][size - 1 - r] = currentBoard[r][c];
+      }
+    }
+    return newBoard;
+  }
+
+
   return (
     <div>
       <h1>2048</h1>
