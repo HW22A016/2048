@@ -1,6 +1,3 @@
-// 次やること
-// 移動速度いじれるようにする
-
 import { useState, useEffect } from 'react';
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
@@ -16,6 +13,10 @@ function App() {
   // 第二引数を[]にすることで一回だけ実行
   useEffect(() => {
     const handleKeyUp = (e) => {
+      if(isGameClear || isGameOver)
+      {
+        return;
+      }
       if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key))
       {
         return; 
@@ -30,7 +31,6 @@ function App() {
         if(JSON.stringify(currentBoard) !== JSON.stringify(newBoard))
         {
           newBoard = spanNum(5, newBoard);
-          setIsGameOver(judgeGameOver(newBoard));
           return newBoard;
         }
 
@@ -43,7 +43,12 @@ function App() {
     return () => {
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [isGameClear, isGameOver]);
+
+  useEffect(() => {
+    setIsGameClear(judgeGameClear(board, 32));
+    setIsGameOver(judgeGameOver(board));
+  }, [board]);
 
   function createBoard()
   {
@@ -236,6 +241,11 @@ function App() {
     return board;
   }
 
+  function judgeGameClear(board, score)
+  {
+    return board.some(tile => tile.value === score);
+  }
+
   function judgeGameOver(board)
   {
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
@@ -297,6 +307,12 @@ function App() {
           )
         }
       </div>
+
+      {isGameClear && (
+        <div>
+          <h1 style={{color: '#0F0'}}>GameClear</h1>
+        </div>
+      )}
 
       {isGameOver && (
         <div>
