@@ -75,16 +75,14 @@ function App() {
       const row = Math.floor(Math.random() * len);
       const col = Math.floor(Math.random() * len);
 
-      const id = row * len + col + 1;
-
       // some()はいずれかの要素が条件に合致しているか判定
-      if(board.some((tile) => tile.id === id && tile.value !== 0))
+      if(board.some((tile) => tile.row === row && tile.col === col && tile.value !== 0))
       {
         continue;
       }
 
       board = board.map(tile =>
-        tile.id === id
+        tile.row === row && tile.col === col
           ? {...tile, value: 2}
           : tile
       )
@@ -100,16 +98,16 @@ function App() {
 
     switch (direction) {
       case 'ArrowUp':
-        console.log('上キーが押されました');
+        newBoard = moveUD(newBoard, "up");
         break;
       case 'ArrowDown':
-        console.log('下キーが押されました');
+        newBoard = moveUD(newBoard, "down");
         break;
       case 'ArrowLeft':
-        newBoard = moveLeft(newBoard);
+        newBoard = moveLR(newBoard, "left");
         break;
       case 'ArrowRight':
-        console.log('右キーが押された');
+        newBoard = moveLR(newBoard, "right");
         break;
       default:
         break;
@@ -117,94 +115,137 @@ function App() {
     return newBoard;
   }
 
-  function moveLeft(board)
+  function moveLR(board, str)
   {
     const len = Math.sqrt(board.length);
     for(let row = 0; row < len; row++)
     {
-      for(let col = 0; col < len - 1; col++)
+      for(let i = 0; i < len; i++)
       {
-        const id = row * len + col + 1;
-        const currentTile = board.find(tile => tile.id === id);
-        const nextTile = board.find(tile => tile.id === id + 1);
+        for(let col = 0; col < len - 1; col++)
+        {
+          const currentTile = board.find(tile => tile.row === row && tile.col === col);
+          const nextTile = board.find(tile => tile.row === row && tile.col === col + 1);
 
-        // 左が0で右が数字なら左に詰める
-        if(currentTile.value === 0 && nextTile.value !== 0)
-        {
-          board.map(tile => {
-            if(tile.id === currentTile.id)
-            {
-              tile.value = nextTile.value;
-            }
-            else if(tile.id === nextTile.id)
-            {
-              tile.value = 0;
-            }
-          })
-        }
-        // 左と右が同じ値なら左に詰めて足す
-        else if(currentTile.value === nextTile.value)
-        {
-          board.map(tile => {
-            if(tile.id === currentTile.id)
-            {
-              tile.value *= 2;
-            }
-            else if(tile.id === nextTile.id)
-            {
-              tile.value = 0;
-            }
-          })
+          if(!currentTile || !nextTile)
+          {
+            console.log(`undifindが発生:${currentTile}, ${nextTile}`)
+          }
+          // 両方0なら何もしない
+          if(currentTile === 0 && nextTile === 0)
+          {
+            continue;
+          }
+
+          switch(str)
+          {
+            case "left":
+              // 左が0で右が数字なら左に詰める
+              if(currentTile.value === 0 && nextTile.value !== 0)
+              {
+                currentTile.col++;
+                nextTile.col--;
+              }
+              // 左と右が同じ値なら左に詰めて足す
+              else if(currentTile.value === nextTile.value && currentTile.value !== 0)
+              {
+                currentTile.value *= 0;
+                currentTile.col++;
+
+                nextTile.col--;
+                nextTile.value *= 2;
+              }
+              break;
+              
+            case "right":
+              // 左が数字で右が0なら右に詰める
+              if(currentTile.value !== 0 && nextTile.value === 0)
+              {
+                currentTile.col++;
+                nextTile.col--;
+              }
+              // 左と右が同じ値なら右に詰めて足す
+              else if(currentTile.value === nextTile.value && currentTile.value !== 0)
+              {
+                currentTile.col++;
+                nextTile.col--;
+                currentTile.value *= 2;
+                nextTile.value *= 0;
+              }
+              break;
+          }
         }
       }
     }
-
     return board;
-    // return board.map(tile => slideLeftRow(tile));
   }
 
-  function slideLeftRow(row)
+  function moveUD(board, str)
   {
-    // 0以外が配列に格納される
-    let numbers = row.filter(cell => cell !== 0);
-
-    // ここで数字が同じなら合体
-    for(let i = 0; i < numbers.length - 1; i++)
+    const len = Math.sqrt(board.length);
+    for(let col = 0; col < len; col++)
     {
-      if(numbers[i] === numbers[i + 1])
+      for(let i = 0; i < len; i++)
       {
-        numbers[i] *= 2;
-        numbers[i + 1] = 0;
-        i++;
+        for(let row = 0; row < len - 1; row++)
+        {
+          const currentTile = board.find(tile => tile.row === row && tile.col === col);
+          const nextTile = board.find(tile => tile.row === row + 1 && tile.col === col);
+
+          if(!currentTile || !nextTile)
+          {
+            console.log(currentTile, nextTile);
+            continue;
+          }
+          else
+          { 
+            console.log(currentTile, nextTile);
+          }
+          // 両方0なら何もしない
+          if(currentTile.value === 0 && nextTile.value === 0)
+          {
+            continue;
+          }
+
+          switch(str)
+          {
+            case "up":
+              // 上が0で下が数字なら上に詰める
+              if(currentTile.value === 0 && nextTile.value !== 0)
+              {
+                currentTile.row++;
+                nextTile.row--;
+              }
+              // 両方同じ数字なら上に詰めて足す
+              else if(currentTile.value === nextTile.value)
+              {
+                currentTile.row++;
+                nextTile.row--;
+                currentTile.value *= 0;
+                nextTile.value *= 2;
+              }          
+              break;
+            case "down":
+              // 上が数字で下が0なら下に詰める
+              if(currentTile.value !== 0 && nextTile.value === 0)
+              {
+                currentTile.row++;
+                nextTile.row--;
+              }
+              else if(currentTile.value === nextTile.value)
+              {
+                currentTile.row++;
+                nextTile.row--;
+                currentTile.value *= 2;
+                nextTile.value *= 0;
+              }
+              break;
+          }
+        }
       }
     }
-
-    // 合体させた分の0を詰める
-    numbers = numbers.filter(cell => cell !== 0);
-
-    // 足りない長さを埋める
-    while(numbers.length < row.length)
-    {
-      numbers.push(0);
-    }
-
-    return numbers;
+    return board;
   }
-
-  function rotateBoard(currentBoard)
-  {
-    const size = currentBoard.length;
-    let newBoard = Array(size).fill(null).map(() => Array(size).fill(0));
-    for(let r = 0; r < size; r++)
-    {
-      for(let c = 0; c < size; c++)
-      {
-        newBoard[c][size - 1 - r] = currentBoard[r][c];
-      }
-    }
-    return newBoard;
-  }
-
 
   return (
     <div>
