@@ -1,6 +1,5 @@
 // 次やること
-// spanNumとmoveLeftをidでvalueを見てるがアニメーションをさせたかったらrowとcolを変更しないとだめなのでvalueでは無くrowとcolを変更するようにしろ
-
+// 移動速度いじれるようにする
 
 import { useState, useEffect } from 'react';
 import heroImg from './assets/hero.png'
@@ -13,7 +12,7 @@ function App() {
 
   // 第二引数を[]にすることで一回だけ実行
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyUp = (e) => {
       if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key))
       {
         return; 
@@ -34,11 +33,11 @@ function App() {
         return currentBoard;
       });
     };
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
 
     // クリーンアップ関数　ページの切り替わりやアプリの終了時に自動で実行
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
     };
   }, []);
 
@@ -127,12 +126,8 @@ function App() {
           const currentTile = board.find(tile => tile.row === row && tile.col === col);
           const nextTile = board.find(tile => tile.row === row && tile.col === col + 1);
 
-          if(!currentTile || !nextTile)
-          {
-            console.log(`undifindが発生:${currentTile}, ${nextTile}`)
-          }
           // 両方0なら何もしない
-          if(currentTile === 0 && nextTile === 0)
+          if(currentTile.value === 0 && nextTile.value === 0)
           {
             continue;
           }
@@ -149,10 +144,9 @@ function App() {
               // 左と右が同じ値なら左に詰めて足す
               else if(currentTile.value === nextTile.value && currentTile.value !== 0)
               {
-                currentTile.value *= 0;
                 currentTile.col++;
-
                 nextTile.col--;
+                currentTile.value *= 0;
                 nextTile.value *= 2;
               }
               break;
@@ -192,15 +186,6 @@ function App() {
           const currentTile = board.find(tile => tile.row === row && tile.col === col);
           const nextTile = board.find(tile => tile.row === row + 1 && tile.col === col);
 
-          if(!currentTile || !nextTile)
-          {
-            console.log(currentTile, nextTile);
-            continue;
-          }
-          else
-          { 
-            console.log(currentTile, nextTile);
-          }
           // 両方0なら何もしない
           if(currentTile.value === 0 && nextTile.value === 0)
           {
