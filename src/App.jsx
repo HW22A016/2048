@@ -6,6 +6,7 @@ import './App.css';
 
 function App() {
   const [board, setBoard] = useState(() => createBoard());
+  const [score, setScore] = useState(0);
   const [speed, setSpeed] = useState(0.2);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameClear, setIsGameClear] = useState(false);
@@ -48,6 +49,7 @@ function App() {
   useEffect(() => {
     setIsGameClear(judgeGameClear(board, 2048));
     setIsGameOver(judgeGameOver(board));
+    setScore(() => board.filter(tile => tile.value !== 2).reduce((sum, tile) => sum + tile.value, 0))
   }, [board]);
 
   function createBoard()
@@ -292,6 +294,9 @@ function App() {
         />
       </div>
       
+      <div>
+        <p>score: {score}</p>
+      </div>
       <div className='board'>
         {Array(25).fill(null).map((_, index) =>(
           <p
@@ -310,7 +315,10 @@ function App() {
 
       <div>
         <button
-          onClick={() => setBoard(createBoard())}>
+          onClick={() => {
+            setBoard(createBoard());
+            setScore(0);
+          }}>
           リセット
         </button>
       </div>
