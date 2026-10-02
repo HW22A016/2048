@@ -9,6 +9,8 @@ import './App.css';
 
 function App() {
   const [board, setBoard] = useState(() => createBoard());
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [isGameClear, setIsGameClear] = useState(false);
 
   // 第二引数を[]にすることで一回だけ実行
   useEffect(() => {
@@ -27,6 +29,7 @@ function App() {
         if(JSON.stringify(currentBoard) !== JSON.stringify(newBoard))
         {
           newBoard = spanNum(5, newBoard);
+          setIsGameOver(judgeGameOver(newBoard));
           return newBoard;
         }
 
@@ -232,6 +235,39 @@ function App() {
     return board;
   }
 
+  function judgeGameOver(board)
+  {
+    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    const len = Math.sqrt(board.length);
+    for(let row = 0; row < len; row++)
+    {
+      for(let col = 0; col < len; col++)
+      {
+        for(const [rowOffset, colOffset] of directions)
+        {
+          const nextRow = row + rowOffset;
+          const nextCol = col + colOffset;
+          if(nextRow < 0 || len - 1 < nextRow || nextCol < 0 || len - 1 < nextCol)
+          {
+            continue;
+          }
+
+          const currentTile = board.find(tile => tile.row === row && tile.col === col);
+          const nextTile = board.find(tile => tile.row === nextRow && tile.col === nextCol);
+          if(currentTile.value === 0 || nextTile.value === 0)
+          {
+            return false;
+          }
+          if(currentTile.value === nextTile.value && currentTile.value !== 0)
+          {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
   return (
     <div>
       <h1>2048</h1>
@@ -251,6 +287,12 @@ function App() {
           )
         }
       </div>
+
+      {isGameOver && (
+        <div>
+          <h1 style={{color: '#F00'}}>GAMEOVER</h1>
+        </div>
+      )}
     </div>
       )
 }
