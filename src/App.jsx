@@ -46,7 +46,7 @@ function App() {
   }, [isGameClear, isGameOver]);
 
   useEffect(() => {
-    setIsGameClear(judgeGameClear(board, 32));
+    setIsGameClear(judgeGameClear(board, 2048));
     setIsGameOver(judgeGameOver(board));
   }, [board]);
 
@@ -306,6 +306,13 @@ function App() {
                 {tile.value}</p>
           )
         }
+      </div>
+
+      <div>
+        <button
+          onClick={() => setBoard(createBoard())}>
+          リセット
+        </button>
       </div>
 
       {isGameClear && (
