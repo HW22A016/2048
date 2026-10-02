@@ -9,6 +9,7 @@ import './App.css';
 
 function App() {
   const [board, setBoard] = useState(() => createBoard());
+  const [speed, setSpeed] = useState(0.2);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameClear, setIsGameClear] = useState(false);
 
@@ -271,6 +272,15 @@ function App() {
   return (
     <div>
       <h1>2048</h1>
+      <div>
+        <span>speed: </span>
+        <input
+          type="number"
+          value={speed}
+          onChange={(e) => setSpeed(Number(e.target.value))}
+          onKeyUp={(e) => e.stopPropagation()}
+        />
+      </div>
       
       <div className='board'>
         {Array(25).fill(null).map((_, index) =>(
@@ -282,7 +292,7 @@ function App() {
         {board.filter(tile => tile.value !== 0).map(tile =>
             <p
               key={tile.id}
-              className='tile' style={{ backgroundColor: tile.value !== 0 ? '#FFF' : '#f4a225', transform: `translate(${tile.col * 50}px, ${tile.row * 50}px)`}}>
+              className='tile' style={{ backgroundColor: tile.value !== 0 ? '#FFF' : '#f4a225', transform: `translate(${tile.col * 50}px, ${tile.row * 50}px)`, transition: `transform ${speed}s ease`}}>
                 {tile.value}</p>
           )
         }
