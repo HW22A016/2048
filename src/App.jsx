@@ -5,6 +5,7 @@ import viteLogo from './assets/vite.svg'
 import './App.css';
 
 function App() {
+  const boardSize = 5;
   const [board, setBoard] = useState(() => createBoard());
   const [score, setScore] = useState(0);
   const [speed, setSpeed] = useState(0.2);
@@ -29,18 +30,15 @@ function App() {
       // 標準の動きをキャンセル
       e.preventDefault();
 
-      setBoard((currentBoard) => {
-        let newBoard = handleMove(currentBoard, e.key);
-
-        // 盤面の比較
-        if(JSON.stringify(currentBoard) !== JSON.stringify(newBoard))
-        {
-          newBoard = spanNum(5, newBoard);
-          return newBoard;
-        }
-
-        return currentBoard;
-      });
+      let newBoard = handleMove(board, e.key);
+      
+      // 盤面の比較
+      if(JSON.stringify(board) === JSON.stringify(newBoard))
+      {
+        return;
+      }
+      newBoard = spanNum(5, newBoard);
+      setBoard(newBoard);
     };
     window.addEventListener('keyup', handleKeyUp);
 
@@ -61,6 +59,10 @@ function App() {
     }
     setIsGameOver(judgeGameOver(board));
     
+    if(board.reduce((sum, tile) => sum + tile.value, 0) === 4)
+    {
+      return;
+    }
     setIsMoving(true);
     const timer = setTimeout(() =>
     {
@@ -87,11 +89,10 @@ function App() {
 
   function createBoard()
   {
-    const len = 5;
-    let board = fillTiles(len);
+    let board = fillTiles(boardSize);
     for(let i = 0; i < 2; i++)
     {
-      board = spanNum(len, board);
+      board = spanNum(boardSize, board);
     }
     return board;
   }
@@ -160,7 +161,7 @@ function App() {
 
   function moveLR(board, str)
   {
-    const len = Math.sqrt(board.length);
+    const len = boardSize;
     for(let row = 0; row < len; row++)
     {
       for(let i = 0; i < len; i++)
@@ -220,7 +221,7 @@ function App() {
 
   function moveUD(board, str)
   {
-    const len = Math.sqrt(board.length);
+    const len = boardSize;
     for(let col = 0; col < len; col++)
     {
       for(let i = 0; i < len; i++)
@@ -284,7 +285,7 @@ function App() {
   function judgeGameOver(board)
   {
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-    const len = Math.sqrt(board.length);
+    const len = boardSize;
     for(let row = 0; row < len; row++)
     {
       for(let col = 0; col < len; col++)
@@ -316,7 +317,7 @@ function App() {
 
   function getScore()
   {
-    return board.filter(tile => tile.value !== 2).reduce((sum, tile) => sum + tile.value, 0)
+    return board.filter(tile => tile.value !== 2).reduce((sum, tile) => sum + tile.value, 0);
   }
 
   return (
@@ -357,6 +358,7 @@ function App() {
           onClick={() => {
             setBoard(createBoard());
             setScore(0);
+            setIsMoving(false);
           }}>
           リセット
         </button>
