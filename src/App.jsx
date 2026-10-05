@@ -6,8 +6,10 @@ import './App.css';
 
 function App() {
   const boardSize = 5;
+  const [newTilePosition, setNewtTilePosition] = useState(null);
   const [board, setBoard] = useState(() => createBoard());
   const [score, setScore] = useState(0);
+  const [resetFlag, setResetFlag] = useState(false);
   const [speed, setSpeed] = useState(0.2);
   const [isMoving, setIsMoving] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -37,8 +39,10 @@ function App() {
       {
         return;
       }
-      newBoard = spanNum(5, newBoard);
+      const tmp = spanNum(5, newBoard);
+      newBoard = tmp.board
       setBoard(newBoard);
+      setNewtTilePosition(tmp.newTilePosition);
     };
     window.addEventListener('keyup', handleKeyUp);
 
@@ -46,7 +50,7 @@ function App() {
     return () => {
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isGameClear, isGameOver, isMoving]);
+  }, [isGameClear, isGameOver, isMoving, resetFlag]);
 
   useEffect(() => {
     setScore(() => getScore())
@@ -67,7 +71,6 @@ function App() {
     const timer = setTimeout(() =>
     {
       setIsMoving(false);
-      console.log(`${speed}秒経ちました`);
     }, speed * 1000);
     return () => clearTimeout(timer);
   }, [board]);
@@ -92,7 +95,7 @@ function App() {
     let board = fillTiles(boardSize);
     for(let i = 0; i < 2; i++)
     {
-      board = spanNum(boardSize, board);
+      board = spanNum(boardSize, board).board;
     }
     return board;
   }
@@ -130,8 +133,10 @@ function App() {
           ? {...tile, value: 2}
           : tile
       )
-
-      return board;
+      return {
+        board: board,
+        newTilePosition: {row: row, col: col}
+      }
     }
   }
 
@@ -347,7 +352,7 @@ function App() {
         {board.filter(tile => tile.value !== 0).map(tile =>
             <p
               key={tile.id}
-              className='tile' style={{ backgroundColor: tile.value !== 0 ? '#FFF' : '#f4a225', transform: `translate(${tile.col * 50}px, ${tile.row * 50}px)`, transition: `transform ${speed}s ease`}}>
+              className='tile' style={{ backgroundColor: tile.row === newTilePosition?.row && tile.col === newTilePosition?.col ? '#0F0' : tile.value !== 0 ? '#FFF' : '#f4a225', transform: `translate(${tile.col * 50}px, ${tile.row * 50}px)`, transition: `transform ${speed}s ease`}}>
                 {tile.value}</p>
           )
         }
@@ -359,6 +364,8 @@ function App() {
             setBoard(createBoard());
             setScore(0);
             setIsMoving(false);
+            setNewtTilePosition(null);
+            setResetFlag(!resetFlag);
           }}>
           リセット
         </button>
