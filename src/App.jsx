@@ -8,19 +8,22 @@ function App() {
   const [board, setBoard] = useState(() => createBoard());
   const [score, setScore] = useState(0);
   const [speed, setSpeed] = useState(0.2);
+  const [isMoving, setIsMoving] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameClear, setIsGameClear] = useState(false);
+
+  const [highScore, setHighScore] = useState(() => getLocalStorageData("2048"));
 
   // 第二引数を[]にすることで一回だけ実行
   useEffect(() => {
     const handleKeyUp = (e) => {
-      if(isGameClear || isGameOver)
+      if(isGameClear || isGameOver || isMoving)
       {
         return;
       }
       if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key))
       {
-        return; 
+        return;
       }
 
       // 標準の動きをキャンセル
@@ -29,6 +32,7 @@ function App() {
       setBoard((currentBoard) => {
         let newBoard = handleMove(currentBoard, e.key);
 
+        // 盤面の比較
         if(JSON.stringify(currentBoard) !== JSON.stringify(newBoard))
         {
           newBoard = spanNum(5, newBoard);
@@ -44,13 +48,42 @@ function App() {
     return () => {
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isGameClear, isGameOver]);
+  }, [isGameClear, isGameOver, isMoving]);
 
   useEffect(() => {
-    setIsGameClear(judgeGameClear(board, 2048));
+    setScore(() => getScore())
+
+    // クリア時の処理
+    if(judgeGameClear(board, 2048))
+    {
+      setIsGameClear(true);
+      setLocalStorageData("2048");
+    }
     setIsGameOver(judgeGameOver(board));
-    setScore(() => board.filter(tile => tile.value !== 2).reduce((sum, tile) => sum + tile.value, 0))
+    
+    setIsMoving(true);
+    const timer = setTimeout(() =>
+    {
+      setIsMoving(false);
+      console.log(`${speed}秒経ちました`);
+    }, speed * 1000);
+    return () => clearTimeout(timer);
   }, [board]);
+
+  function getLocalStorageData(key)
+  {
+    const localData = localStorage.getItem(key);
+    return localData ? JSON.parse(localData) : 0;
+  }
+
+  function setLocalStorageData(key)
+  {
+    const newScore = getScore();
+    const maxScore = highScore < newScore ? newScore : maxScore;
+    localStorage.setItem(key, JSON.stringify(maxScore));
+    setHighScore(maxScore);
+    console.log(`${maxScore}がlocalStorageに保存されました。`);
+  }
 
   function createBoard()
   {
@@ -281,6 +314,11 @@ function App() {
     return true;
   }
 
+  function getScore()
+  {
+    return board.filter(tile => tile.value !== 2).reduce((sum, tile) => sum + tile.value, 0)
+  }
+
   return (
     <div>
       <h1>2048</h1>
@@ -295,6 +333,7 @@ function App() {
       </div>
       
       <div>
+        <p>high score: {highScore}</p>
         <p>score: {score}</p>
       </div>
       <div className='board'>
