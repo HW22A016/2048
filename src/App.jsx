@@ -18,32 +18,7 @@ function App() {
   const [highScore, setHighScore] = useState(() => getLocalStorageData("2048"));
 
   // 第二引数を[]にすることで一回だけ実行
-  useEffect(() => {
-    const handleKeyUp = (e) => {
-      if(isGameClear || isGameOver || isMoving)
-      {
-        return;
-      }
-      if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key))
-      {
-        return;
-      }
-
-      // 標準の動きをキャンセル
-      e.preventDefault();
-
-      let newBoard = handleMove(board, e.key);
-      
-      // 盤面の比較
-      if(JSON.stringify(board) === JSON.stringify(newBoard))
-      {
-        return;
-      }
-      const tmp = spanNum(5, newBoard);
-      newBoard = tmp.board
-      setBoard(newBoard);
-      setNewtTilePosition(tmp.newTilePosition);
-    };
+  useEffect(() => {    
     window.addEventListener('keyup', handleKeyUp);
 
     // クリーンアップ関数　ページの切り替わりやアプリの終了時に自動で実行
@@ -63,6 +38,7 @@ function App() {
     }
     setIsGameOver(judgeGameOver(board));
     
+    // 最初の2が二つだけの場面ならクールタイムを無くす
     if(board.reduce((sum, tile) => sum + tile.value, 0) === 4)
     {
       return;
@@ -138,6 +114,23 @@ function App() {
         newTilePosition: {row: row, col: col}
       }
     }
+  }
+
+  function handleKeyUp(e)
+  {
+    if(isGameClear || isGameOver || isMoving)
+    {
+      return;
+    }
+    if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key))
+    {
+      return;
+    }
+
+    // 標準の動きをキャンセル
+    e.preventDefault();
+
+    updateBoard(e.key);
   }
 
   function handleMove(currentBoard, direction)
@@ -280,6 +273,21 @@ function App() {
       }
     }
     return board;
+  }
+
+  function updateBoard(direction)
+  {
+    let newBoard = handleMove(board, direction);
+    
+    // 盤面の比較
+    if(JSON.stringify(board) === JSON.stringify(newBoard))
+    {
+      return;
+    }
+    const tmp = spanNum(5, newBoard);
+    newBoard = tmp.board
+    setBoard(newBoard);
+    setNewtTilePosition(tmp.newTilePosition);
   }
 
   function judgeGameClear(board, score)
