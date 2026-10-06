@@ -25,3 +25,16 @@
   height: 48.5px;
   border: 1px solid #555;
 }
+
+.textColor
+{
+  color: #000;
+}
+
+@media(prefers-color-scheme: dark)
+{
+  .textColor
+  {
+    color:#FFF;
+  }
+}

@@ -329,7 +329,7 @@ function App() {
     <div>
       <h1>2048</h1>
       <div>
-        <span>speed: </span>
+        <span className='textColor'>speed: </span>
         <input
           type="number"
           value={speed}
@@ -338,7 +338,7 @@ function App() {
         />
       </div>
       
-      <div>
+      <div className='textColor'>
         <p>high score: {highScore}</p>
         <p>score: {score}</p>
       </div>
