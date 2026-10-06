@@ -130,10 +130,6 @@ function App() {
 
   function handleKeyUp(e)
   {
-    if(isGameClear || isGameOver || isMoving)
-    {
-      return;
-    }
     if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key))
     {
       return;
@@ -289,6 +285,10 @@ function App() {
 
   function updateBoard(direction)
   {
+    if(isGameClear || isGameOver || isMoving)
+    {
+      return;
+    }
     let newBoard = handleMove(board, direction);
     
     // 盤面の比較
