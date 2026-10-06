@@ -25,7 +25,7 @@ function App() {
     onSwipedDown: () => updateBoard('ArrowDown'),
     delta: 5,  //スワイプが開始する前の最小距離(px)
     preventScrollOnSwipe: true, //スワイプ中のスクロールを防ぐ
-    trackTouch: false,  //タッチ入力をトラックする
+    trackTouch: true,  //タッチ入力をトラックする
     trackMouse: true, //マウス入力をトラックする
   });
 
