@@ -3,6 +3,7 @@ import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css';
+import { useSwipeable } from 'react-swipeable';
 
 function App() {
   const boardSize = 5;
@@ -16,6 +17,17 @@ function App() {
   const [isGameClear, setIsGameClear] = useState(false);
 
   const [highScore, setHighScore] = useState(() => getLocalStorageData("2048"));
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => updateBoard('ArrowLeft'),
+    onSwipedRight: () => updateBoard('ArrowRight'),
+    onSwipedUp: () => updateBoard('ArrowUp'),
+    onSwipedDown: () => updateBoard('ArrowDown'),
+    delta: 5,  //スワイプが開始する前の最小距離(px)
+    preventScrollOnSwipe: true, //スワイプ中のスクロールを防ぐ
+    trackTouch: false,  //タッチ入力をトラックする
+    trackMouse: true, //マウス入力をトラックする
+  });
 
   // 第二引数を[]にすることで一回だけ実行
   useEffect(() => {    
@@ -350,7 +362,7 @@ function App() {
         <p>high score: {highScore}</p>
         <p>score: {score}</p>
       </div>
-      <div className='board'>
+      <div className='board' {...swipeHandlers}>
         {Array(25).fill(null).map((_, index) =>(
           <p
             key={index}
