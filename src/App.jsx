@@ -72,10 +72,9 @@ function App() {
   function setLocalStorageData(key)
   {
     const newScore = getScore();
-    const maxScore = highScore < newScore ? newScore : maxScore;
+    const maxScore = highScore < newScore ? newScore : highScore;
     localStorage.setItem(key, JSON.stringify(maxScore));
     setHighScore(maxScore);
-    console.log(`${maxScore}がlocalStorageに保存されました。`);
   }
 
   function createBoard()
@@ -385,6 +384,8 @@ function App() {
             setScore(0);
             setIsMoving(false);
             setNewtTilePosition(null);
+            setIsGameOver(false);
+            setIsGameClear(false);
             setResetFlag(!resetFlag);
           }}>
           リセット
